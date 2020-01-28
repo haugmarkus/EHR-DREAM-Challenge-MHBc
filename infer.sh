@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-Rscript /app/eval_2801.r
+Rscript /app/eval_2801.R

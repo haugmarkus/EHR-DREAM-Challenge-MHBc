@@ -14,8 +14,8 @@ RUN mkdir /app
 WORKDIR /app
 
 # Copy our python program for training and inference
-COPY train_2801.r .
-COPY eval_2801.r .
+COPY train_2801.R .
+COPY eval_2801.R .
 
 # Copy Bash scripts expected by the IT infrastructure of the EHR DREAM Challenge
 COPY train.sh .

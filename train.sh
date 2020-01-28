@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-Rscript /app/train_2801.r
+Rscript /app/train_2801.R
