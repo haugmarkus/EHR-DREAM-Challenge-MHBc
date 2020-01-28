@@ -100,88 +100,107 @@ observation = training$observation %>%
   mutate(value = 1) %>% 
   pivot_wider(id_cols = person_id, names_from = observation_concept_id, values_from = value, values_fn = list(value = max), values_fill = list(value = 0))
 
+drug = training$drug_exposure %>% 
+  select(person_id, drug_concept_id) %>% 
+  mutate(drug_concept_id = str_c("Drug",drug_concept_id)) %>% 
+  mutate(value = 1) %>% 
+  pivot_wider(id_cols = person_id, names_from = drug_concept_id, values_from = value, values_fn = list(value = max), values_fill = list(value = 0))
+
+
 #Finding important variables (observations, conditions, drugs)-----------------
 #Conditions
 
-cond_lr_data = training$response %>% 
-  right_join(training$person, by = "person_id") %>% 
-  mutate_at(.vars = vars(starts_with("response")), .funs = ~ coalesce(., as.factor("No")))
+# cond_lr_data = training$response %>% 
+#   right_join(training$person, by = "person_id") %>% 
+#   mutate_at(.vars = vars(starts_with("response")), .funs = ~ coalesce(., as.factor("No")))
+# cond_lr_data = cond_lr_data %>% 
+#   left_join(condition, by = "person_id") %>%
+#   mutate_at(.vars = vars(starts_with("Condition")), .funs = ~ coalesce(., 0))
+# cond_lr_data = cond_lr_data %>% select(-month_of_birth, -day_of_birth,-year_of_birth, -person_id)
+# cond_lr_data = na.omit(cond_lr_data)
+# cond_lr_data = cond_lr_data[,!(names(cond_lr_data) %in% c("NA"))]
+# mylogit <- glm(response ~ ., data=cond_lr_data, family = "binomial")
+# keep <- coef(summary(mylogit))[,4]<0.5
+# tmp <- cond_lr_data %>% select(names(keep[keep])[-1],"response")
+# mylogit <- glm(response ~ ., data=tmp, family = "binomial")
+# keep <- coef(summary(mylogit))[,4]<0.05
+# tmp <- tmp %>% select(names(keep[keep])[-1],"response")
+# mylogit <- glm(response ~ ., data=tmp, family = "binomial")
+# keep <- coef(summary(mylogit))[,4]<0.005
+# tmp <- tmp %>% select(names(keep[keep])[-1],"response")
+# mylogit <- glm(response ~ ., data=tmp, family = "binomial")
+# keep <- coef(summary(mylogit))[,4]<0.0005
+# tr <- tr %>% select(names(keep[keep])[-1])
+# condlogit <- names(keep[keep])
+# save(condlogit, file = "condlogit.RData")
+# #Observations
+# obs_lr_data = training$response %>% 
+#   right_join(training$person, by = "person_id") %>% 
+#   mutate_at(.vars = vars(starts_with("response")), .funs = ~ coalesce(., as.factor("No")))
+# obs_lr_data = obs_lr_data %>% 
+#   left_join(observation, by = "person_id") %>%
+#   mutate_at(.vars = vars(starts_with("Observation")), .funs = ~ coalesce(., 0))
+# obs_lr_data = obs_lr_data %>% select(-month_of_birth, -day_of_birth,-year_of_birth, -person_id)
+# obs_lr_data = na.omit(obs_lr_data)
+# obs_lr_data = obs_lr_data[,!(names(obs_lr_data) %in% c("NA"))]
+# mylogit <- glm(response ~ ., data=obs_lr_data, family = "binomial")
+# keep <- coef(summary(mylogit))[,4]<0.5
+# tmp <- obs_lr_data %>% select(names(keep[keep])[-1],"response")
+# mylogit <- glm(response ~ ., data=tmp, family = "binomial")
+# keep <- coef(summary(mylogit))[,4]<0.05
+# tmp <- tmp %>% select(names(keep[keep])[-1],"response")
+# mylogit <- glm(response ~ ., data=tmp, family = "binomial")
+# keep <- coef(summary(mylogit))[,4]<0.005
+# tmp <- tmp %>% select(names(keep[keep])[-1],"response")
+# mylogit <- glm(response ~ ., data=tmp, family = "binomial")
+# keep <- coef(summary(mylogit))[,4]<0.0005
+# tr <- tr %>% select(names(keep[keep])[-1])
+# obslogit <- names(keep[keep])
+# save(obslogit, file = "obslogit.RData")
+# 
+# #Drug
+# 
+# drug_lr_data <- training$response %>% 
+#   right_join(training$person, by = "person_id") %>% 
+#   mutate_at(.vars = vars(starts_with("response")), .funs = ~ coalesce(., as.factor("No")))
+# 
+# drug_lr_data = drug_lr_data %>% 
+#   left_join(drug, by = "person_id") %>%
+#   mutate_at(.vars = vars(starts_with("Drug")), .funs = ~ coalesce(., 0))
+# drug_lr_data = drug_lr_data %>% select(-month_of_birth, -day_of_birth,-year_of_birth, -person_id)
+# drug_lr_data = na.omit(drug_lr_data)
+# drug_lr_data = drug_lr_data[,!(names(drug_lr_data) %in% c("NA"))]
+# 
+# mylogit <- glm(response ~ ., data=drug_lr_data, family = "binomial")
+# 
+# keep <- coef(summary(mylogit))[,4]<0.5
+# tmp <- obs_lr_data %>% select(names(keep[keep])[-1],"response")
+# mylogit <- glm(response ~ ., data=tmp, family = "binomial")
+# keep <- coef(summary(mylogit))[,4]<0.05
+# tmp <- tmp %>% select(names(keep[keep])[-1],"response")
+# mylogit <- glm(response ~ ., data=tmp, family = "binomial")
+# keep <- coef(summary(mylogit))[,4]<0.005
+# tmp <- tmp %>% select(names(keep[keep])[-1],"response")
+# mylogit <- glm(response ~ ., data=tmp, family = "binomial")
+# keep <- coef(summary(mylogit))[,4]<0.0005
+# tr <- tr %>% select(names(keep[keep])[-1])
+# obslogit <- names(keep[keep])
+# save(obslogit, file = "druglogit.RData")
 
-cond_lr_data = cond_lr_data %>% 
-  left_join(condition, by = "person_id") %>%
-  mutate_at(.vars = vars(starts_with("Condition")), .funs = ~ coalesce(., 0))
-cond_lr_data = cond_lr_data %>% select(-month_of_birth, -day_of_birth,-year_of_birth, -person_id)
-cond_lr_data = na.omit(cond_lr_data)
-cond_lr_data = cond_lr_data[,!(names(cond_lr_data) %in% c("NA"))]
+# load("obslogit.RData")
+# load("condlogit.RData")
+# load("druglogit.RData")
 
-mylogit <- glm(response ~ ., data=cond_lr_data, family = "binomial")
+obslogit <-
+  
+condlogit <-
+  
+druglogit <-
 
-
-keep <- coef(summary(mylogit))[,4]<0.5
-tmp <- cond_lr_data %>% select(names(keep[keep])[-1],"response")
-
-mylogit <- glm(response ~ ., data=tmp, family = "binomial")
-
-
-keep <- coef(summary(mylogit))[,4]<0.05
-tmp <- tmp %>% select(names(keep[keep])[-1],"response")
-
-mylogit <- glm(response ~ ., data=tmp, family = "binomial")
-
-
-keep <- coef(summary(mylogit))[,4]<0.005
-tmp <- tmp %>% select(names(keep[keep])[-1],"response")
-
-mylogit <- glm(response ~ ., data=tmp, family = "binomial")
-
-
-keep <- coef(summary(mylogit))[,4]<0.0005
-tr <- tr %>% select(names(keep[keep])[-1])
-
-condlogit <- names(keep[keep])
-save(condlogit, file = "condlogit.RData")
-
-condition = condition %>% select(condlogit, "person_id")
-#Observations
-obs_lr_data = training$response %>% 
-  right_join(training$person, by = "person_id") %>% 
-  mutate_at(.vars = vars(starts_with("response")), .funs = ~ coalesce(., as.factor("No")))
-
-obs_lr_data = obs_lr_data %>% 
-  left_join(observation, by = "person_id") %>%
-  mutate_at(.vars = vars(starts_with("Observation")), .funs = ~ coalesce(., 0))
-obs_lr_data = obs_lr_data %>% select(-month_of_birth, -day_of_birth,-year_of_birth, -person_id)
-obs_lr_data = na.omit(obs_lr_data)
-obs_lr_data = obs_lr_data[,!(names(obs_lr_data) %in% c("NA"))]
-
-mylogit <- glm(response ~ ., data=obs_lr_data, family = "binomial")
-
-
-keep <- coef(summary(mylogit))[,4]<0.5
-tmp <- obs_lr_data %>% select(names(keep[keep])[-1],"response")
-
-mylogit <- glm(response ~ ., data=tmp, family = "binomial")
-
-
-keep <- coef(summary(mylogit))[,4]<0.05
-tmp <- tmp %>% select(names(keep[keep])[-1],"response")
-
-mylogit <- glm(response ~ ., data=tmp, family = "binomial")
-
-
-keep <- coef(summary(mylogit))[,4]<0.005
-tmp <- tmp %>% select(names(keep[keep])[-1],"response")
-
-mylogit <- glm(response ~ ., data=tmp, family = "binomial")
-
-
-keep <- coef(summary(mylogit))[,4]<0.0005
-tr <- tr %>% select(names(keep[keep])[-1])
-
-obslogit <- names(keep[keep])
-save(obslogit, file = "obslogit.RData")
 
 observation = observation %>% select(obslogit, "person_id")
+condition = condition %>% select(condlogit, "person_id")
+drug = drug %>% select(druglogit, "person_id")
 #Binding data -----------------------------------------------------------------
 
 data = training$response %>% 
@@ -204,6 +223,11 @@ data = data %>%
 data = data %>% 
   left_join(observation, by = "person_id") %>%
   mutate_at(.vars = vars(starts_with("Observation")), .funs = ~ coalesce(., 0))
+
+data = data %>% 
+  left_join(drug, by = "person_id") %>%
+  mutate_at(.vars = vars(starts_with("Drug")), .funs = ~ coalesce(., 0))
+
 
 #Fixing data --------------------------------------------------------------------
 data = data %>% select(-month_of_birth, -day_of_birth)
@@ -231,8 +255,8 @@ training <- rbind(data_yes[indexes_yes,], data_no[indexes_no,])
 validation <- rbind(data_yes[-indexes_yes,],data_no[-indexes_no,])
 
 model = ranger(response ~ .,
-               data=training, num.trees = 1024 ,mtry = 12,
-               class.weights = c("No" = 1, "Yes"=correction))
+               data=training, num.trees = 1026 ,mtry = 15,
+               class.weights = c("No" = 1, "Yes"=0.5*correction))
 
 # Save model ------------------------------------------------------------------
 features = setdiff(colnames(data), "response")

@@ -116,15 +116,19 @@ observation = training$observation %>%
   pivot_wider(id_cols = person_id, names_from = observation_concept_id, values_from = value, values_fn = list(value = max), values_fill = list(value = 0))
 
 
-#add drugs
+drug = training$drug_exposure %>% 
+  select(person_id, drug_concept_id) %>% 
+  mutate(drug_concept_id = str_c("Drug",drug_concept_id)) %>% 
+  mutate(value = 1) %>% 
+  pivot_wider(id_cols = person_id, names_from = drug_concept_id, values_from = value, values_fn = list(value = max), values_fill = list(value = 0))
 
-load("condlogit.RData")
+
 load("obslogit.RData")
-
-condition = condition %>% select(condlogit, "person_id")
+load("condlogit.RData")
+load("druglogit.RData")
 observation = observation %>% select(obslogit, "person_id")
-#drug = ...
-
+condition = condition %>% select(condlogit, "person_id")
+drug = drug %>% select(druglogit, "person_id")
 
 # Harmonize with training data features
 
@@ -137,8 +141,14 @@ data = data %>%
   mutate_at(.vars = vars(starts_with("Observation")), .funs = ~ coalesce(., 0))
 
 data = data %>% 
+  left_join(drug, by = "person_id") %>%
+  mutate_at(.vars = vars(starts_with("Drug")), .funs = ~ coalesce(., 0))
+
+data = data %>% 
   left_join(condition, by = "person_id") %>%
   mutate_at(.vars = vars(starts_with("Condition")), .funs = ~ coalesce(., 0))
+
+
 
 data = data %>% 
   left_join(gender, by = "person_id") %>%
