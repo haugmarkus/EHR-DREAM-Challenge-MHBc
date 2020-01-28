@@ -191,11 +191,70 @@ drug = training$drug_exposure %>%
 # load("condlogit.RData")
 # load("druglogit.RData")
 
-obslogit <-
-  
-condlogit <-
-  
-druglogit <-
+obslogit <- c( "Observation4214956",  "Observation4015724",  "Observation0",
+               "Observation4167217",  "Observation440922" ,  "Observation40485017",
+               "Observation440927",   "Observation2617267",  "Observation2720581",
+               "Observation2108553",  "Observation40479430", "Observation40479343",
+               "Observation4149299",  "Observation2514491",  "Observation440121",
+               "Observation4090651", "Observation2106386",  "Observation2108782",
+               "Observation2614664",  "Observation4014023",  "Observation2617827",
+               "Observation4253306",  "Observation2102836",  "Observation437175",
+               "Observation4019957",  "Observation4150253",  "Observation2106328",
+               "Observation4171434",  "Observation2106342",  "Observation2102833",
+               "Observation4060094",  "Observation4059465",  "Observation2106182",
+               "Observation4305831",  "Observation4192270",  "Observation4058861",
+               "Observation40757059", "Observation4219847",  "Observation2617883",
+               "Observation438872",   "Observation2109560",  "Observation2108688",
+               "Observation2617820",  "Observation2614675",  "Observation2617808",
+               "Observation2101873",  "Observation2101879", "Observation442424",
+               "Observation2101934",  "Observation2108529",  "Observation2110380",
+               "Observation2106382",  "Observation4058284",  "Observation4117957",
+               "Observation2414352",  "Observation2101911",  "Observation4030415",
+               "Observation438331",   "Observation437449",  "Observation4060088",
+               "Observation2108611",  "Observation442423",   "Observation433946",
+               "Observation2107558",  "Observation194800",   "Observation4081758",
+               "Observation2614661",  "Observation435151",   "Observation196462",
+               "Observation2106844",  "Observation433376",   "Observation436868",
+               "Observation2617805",  "Observation441764",   "Observation2101838",
+               "Observation2108583",  "Observation4145111",  "Observation4094126",
+               "Observation2108585",  "Observation2106289",  "Observation2108776",
+               "Observation2614673",  "Observation2617831",  "Observation4329840",
+               "Observation2101906",  "Observation433393",  "Observation439371",
+               "Observation2108708",  "Observation440308",   "Observation442936",
+               "Observation2106843",  "Observation4052171",  "Observation2106711"
+)
+
+condlogit <- c("Condition198700",   "Condition201337",   "Condition201531",
+                "Condition444099",  "Condition438739",   "Condition435577",
+                "Condition40486896", "Condition135215",   "Condition78227",
+                "Condition4181482",  "Condition4261933",  "Condition201603",
+                "Condition376552",   "Condition379021",   "Condition73847",
+                "Condition198184",   "Condition381446",   "Condition78282",
+                "Condition439920",   "Condition73289",    "Condition132344",
+                "Condition138876",   "Condition40480431", "Condition376107",
+                "Condition433180",   "Condition434766",   "Condition134569",
+                "Condition138690",   "Condition4119258",  "Condition321726",
+                "Condition77373",    "Condition80197",    "Condition4303970",
+                "Condition138455")
+
+druglogit <- c("Drug19029027", "Drug0",        "Drug40165762", "Drug19133768", "Drug1314006",
+                "Drug19003829", "Drug1551170",  "Drug19074672", "Drug2213440",  "Drug1518606",
+                "Drug2213483",  "Drug40171917", "Drug1363059",  "Drug956877",   "Drug40222592",
+                "Drug736021",   "Drug903963",   "Drug790255",   "Drug19010040", "Drug19075308",
+                "Drug1126750",  "Drug2213438",  "Drug40164141", "Drug1790982",  "Drug19090761",
+                "Drug1750501",  "Drug40222092", "Drug19135233", "Drug40168549", "Drug40175215",
+                "Drug40168370", "Drug19019338", "Drug40174491", "Drug19096776", "Drug19030828",
+                "Drug40162439", "Drug40163754", "Drug40169706", "Drug40162871", "Drug19021074",
+                "Drug40227085", "Drug40168499", "Drug40169695", "Drug40243198", "Drug42708517",
+                "Drug40162484", "Drug40171683", "Drug19049685", "Drug40165453", "Drug1156715",
+                "Drug19058442", "Drug19078868", "Drug1586370",  "Drug42898215", "Drug19095118",
+                "Drug40226155", "Drug19124005", "Drug42800815", "Drug1134473",  "Drug788065",
+                "Drug42873728", "Drug40162275", "Drug19052941", "Drug40227730", "Drug40234555",
+                "Drug40222791", "Drug961085",   "Drug42800292", "Drug1733766",  "Drug19132662",
+                "Drug40238948", "Drug40164860", "Drug40168924", "Drug19125455", "Drug43012043",
+                "Drug40071653", "Drug40167416", "Drug40161865", "Drug19034478", "Drug40164178",
+                "Drug40232658", "Drug905412",   "Drug19113353"
+)
 
 
 observation = observation %>% select(obslogit, "person_id")
@@ -256,7 +315,7 @@ validation <- rbind(data_yes[-indexes_yes,],data_no[-indexes_no,])
 
 model = ranger(response ~ .,
                data=training, num.trees = 1026 ,mtry = 15,
-               class.weights = c("No" = 1, "Yes"=0.5*correction))
+               class.weights = c("No" = 1, "Yes"=correction), probability = TRUE)
 
 # Save model ------------------------------------------------------------------
 features = setdiff(colnames(data), "response")
